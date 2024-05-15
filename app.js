@@ -5,10 +5,12 @@ const usersRouter = require("./routes/users");
 const categoriesRouter = require("./routes/categoties");
 const bodyParser = require("body-parser");
 const path = require("path");
+const connectToDatabase =require("./database/connect");
 
+connectToDatabase ();
 const PORT = 3000;
 app.use(
-  bodyParser.json,
+  bodyParser.json(),
   express.static(path.join(__dirname, "public")),
   usersRouter,
   gamesRouter,
