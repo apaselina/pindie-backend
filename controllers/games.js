@@ -4,3 +4,4 @@ const sendAllGames = (req, res) => {
   res.end(JSON.stringify(req.gamesArray));
 }
 module.exports = sendAllGames;
+
