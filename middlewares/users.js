@@ -1,4 +1,16 @@
 const userShema = require("../models/user");
+const bcrypt = require("bcryptjs");
+
+const hashPassword = async (req, res, next) => {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(req.body.password, salt);
+    req.body.password = hash;
+    next();
+  } catch (error) {
+    res.status(400).send({ message: "Ошибка хеширования пароля" });
+  }
+}; 
 
 const checkEmptyNameAndEmailAndPassword = async (req, res, next) => {
   if (!req.body.username || !req.body.email || !req.body.password) {
@@ -56,10 +68,9 @@ const createNewUser = async (req, res, next) => {
     req.user = await userShema.create(req.body);
     next();
   } catch (err) {
-    res.setHeader("Content-Type", "application/json");
     res
       .status(400)
-      .send(JSON.stringify({ message: "Ошибка создания пользователя" }));
+      .send({ message: "Ошибка создания пользователя" });
   }
 };
 
@@ -96,4 +107,5 @@ module.exports = {
   checkEmptyNameAndEmailAndPassword,
   checkEmptyNameAndEmail,
   checkIsUserExists,
+  hashPassword,
 };
