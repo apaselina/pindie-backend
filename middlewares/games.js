@@ -60,10 +60,17 @@ const checkIsUsersAreSafe = async (req, res, next) => {
 };
 
 const findAllGames = async (req, res, next) => {
-  req.gamesArray = await gameShema
-    .find({})
-    .populate({ path: "users", select: "-password" })
-    .populate("categories");
+  if (req.query["categories.name"]) {
+    req.gamesArray = await gameShema.findGameByCategory(
+      req.query["categories.name"]
+    );
+    next();
+    return;
+  }
+  req.gamesArray = await gameShema.find({}).populate("categories").populate({
+    path: "users",
+    select: "-password",
+  });
   next();
 };
 
