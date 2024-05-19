@@ -34,10 +34,8 @@ usersRouter.post(
 );
 usersRouter.put(
   "/users/:id",
-  findUserById,
-  checkAuth,
   checkEmptyNameAndEmail,
-  checkIsUserExists,
+  checkAuth,
   updateUser,
   sendUserUpdated
 );

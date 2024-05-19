@@ -1,6 +1,10 @@
-const gameShema = require("../models/game");
+const gameModel = require("../models/game");
 
 const checkEmptyFields = async (req, res, next) => {
+  if(req.isVoteRequest) {
+    next();
+    return;
+  } 
   if (
     !req.body.title ||
     !req.body.description ||
@@ -32,6 +36,10 @@ const checkIsGameExists = async (req, res, next) => {
 };
 
 const checkIsCategoriesAvaliable = async (req, res, next) => {
+  if(req.isVoteRequest) {
+    next();
+    return;
+  } 
   if (!req.body.categories || req.body.categories.lenght === 0) {
     res.headers = { "Content-Type": "application/json" };
     res.status(400).send({ message: "Выберите хотя бы одну категорию" });
@@ -59,15 +67,22 @@ const checkIsUsersAreSafe = async (req, res, next) => {
   }
 };
 
+const checkIsVoteRequest = async (req, res, next) => {
+if (Object.keys(req.body).length === 1 && req.body.users) {
+  req.isVoteRequest = true;
+}
+next();
+}; 
+
 const findAllGames = async (req, res, next) => {
   if (req.query["categories.name"]) {
-    req.gamesArray = await gameShema.findGameByCategory(
+    req.gamesArray = await gameModel.findGameByCategory(
       req.query["categories.name"]
     );
     next();
     return;
   }
-  req.gamesArray = await gameShema.find({}).populate("categories").populate({
+  req.gamesArray = await gameModel.find({}).populate("categories").populate({
     path: "users",
     select: "-password",
   });
@@ -76,20 +91,20 @@ const findAllGames = async (req, res, next) => {
 
 const findGameById = async (req, res, next) => {
   try {
-    req.game = await gameShema
-      .findById(req.param.id)
+    req.game = await gameModel
+      .findById(req.params.id)
       .populate("categories")
       .populate("users");
     next();
   } catch (err) {
     res.setHeader("Content-Type", "application/json");
-    res.status(404).send(JSON.stringify({ message: "Игра не найдена" }));
+    res.status(404).send({ message: "Игра не найдена" });
   }
 };
 
 const createNewGame = async (req, res, next) => {
   try {
-    req.game = await gameShema.create(req.body);
+    req.game = await gameModel.create(req.body);
     next();
   } catch (err) {
     res.status(400).send("Ошибка создания игры");
@@ -98,7 +113,7 @@ const createNewGame = async (req, res, next) => {
 
 const updateGame = async (req, res, next) => {
   try {
-    req.game = await gameShema.findByIdAndUpdate(req.params.id, req.body);
+    req.game = await gameModel.findByIdAndUpdate(req.params.id, req.body);
     next();
   } catch (err) {
     res.setHeader("Content-Type", "application/json");
@@ -108,7 +123,7 @@ const updateGame = async (req, res, next) => {
 
 const deleteGame = async (req, res, next) => {
   try {
-    req.game = await gameShema.findByIdAndDelete(req.params.id);
+    req.game = await gameModel.findByIdAndDelete(req.params.id);
     next();
   } catch (err) {
     res.setHeader("Content-Type", "application/json");
@@ -126,4 +141,5 @@ module.exports = {
   checkIsGameExists,
   checkIsCategoriesAvaliable,
   checkIsUsersAreSafe,
+  checkIsVoteRequest
 };
