@@ -2,6 +2,7 @@ const allowedCors = [
   "http://localhost:3000",
   "http://localhost:3001",
   "http://apollo.nomoredomainswork.ru",
+  "https://pindie-frontend.vercel.app",
 ];
 
 function cors(req, res, next) {
